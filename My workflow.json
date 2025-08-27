@@ -1,0 +1,102 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "ea90de55-1632-4573-b81a-dfd6bd0451ce",
+      "name": "Webhook",
+      "webhookId": "73f35c08-45db-41a3-94b0-02390e4fef7f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un asistente especializado en salud, fitness y alimentación. Solo respondes sobre estos temas. Si alguien te pregunta otra cosa, dile que no puedes ayudar con eso y redirígelo a hablar sobre ejercicio, alimentación saludable, rutinas o bienestar físico. Cuando proporciones listas, rutinas o pasos, usa saltos de línea y numéralos de forma clara\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$json.body.mensaje}}\"\n    }\n  ],\n  \"temperature\": 0.7\n}\n\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "beb89ac1-c80a-495b-8fa8-12a1e6b5359e",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "LllD24265hvreQV5",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json[\"choices\"][0][\"message\"][\"content\"] }}\n\n\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b73373de-b813-4d72-9b01-113cf1ca7553",
+      "name": "Respond to Webhook",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "93187067-c479-48ea-8bf4-4f8c2440e618",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "28bc38d72ce2ab93d906a8d00e8b30c77e692e4e84716b7630154af2f4af74ff"
+  },
+  "id": "l9lJeGzRdHP6I4Tx",
+  "tags": []
+}
